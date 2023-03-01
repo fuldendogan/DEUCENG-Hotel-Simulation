@@ -36,8 +36,8 @@ public class Main {
             for (Room room : deuCengHotel.rooms)
                 room.print();
         }
-        else if (command[0].trim().equals(""))
-            return;
+        else if (command[0].trim().equals("")) {
+        }
         else
             System.out.println("Invalid command, command: " + command[0] + " is not supported");
     }
