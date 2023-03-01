@@ -1,0 +1,5 @@
+addRoom;2;regular;true;false;1000
+addRoom;1;deluxe;true;true;2000
+addRoom;1;suite;true;true;4000
+
+listRooms
