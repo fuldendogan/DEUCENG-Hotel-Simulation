@@ -1,10 +1,19 @@
 public class Staff {
-    StaffType staffType; //administrator, receptionist and housekeeper
+    String staffId;
+    StaffType job; //administrator, receptionist and housekeeper
     String name;
-    DeuDate birtDate;
+    String surname;
+    DeuDate birthDate;
     String gender;
     Address address;
     PhoneNumber phoneNumber;
-    String job;
     Double salary;
+
+    public void print() {
+        String space = "%-10s";
+        System.out.println("\tEmployee #" + staffId + " " +
+                String.format(space, name) + " " + String.format(space, surname) + " " +
+                String.format(space, gender) + " " +
+                String.format(space, birthDate.toString()) + " " + String.format(space, job.toString().toLowerCase()));
+    }
 }

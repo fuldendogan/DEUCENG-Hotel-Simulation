@@ -1,5 +1,5 @@
 public enum StaffType {
-    ADMINISTRATOR, RECEPTIONIST, HOUSEKEEPER;
+    ADMIN, RECEPTIONIST, HOUSEKEEPER;
 
     StaffType() {
     }
