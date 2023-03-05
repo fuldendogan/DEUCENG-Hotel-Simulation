@@ -1,11 +1,11 @@
 import java.util.List;
 
 public class Reservation {
-    String customerId;
-    String roomId;
-    DeuDate dateOfArrival;
+    private String customerId;
+    private String roomId;
+    private DeuDate dateOfArrival;
     //It is expected to make a reservation between 01.01.2024 and 31.12.2024.
-    DeuDate dateOfDeparture;
+    private DeuDate dateOfDeparture;
 
     public Reservation(String customerId, String roomId, DeuDate dateOfArrival, DeuDate dateOfDeparture) {
         this.customerId = customerId;
@@ -22,18 +22,51 @@ public class Reservation {
         return null;
     }
 
+    public String getCustomerId() {
+        return customerId;
+    }
+
+    public void setCustomerId(String customerId) {
+        this.customerId = customerId;
+    }
+
+    public String getRoomId() {
+        return roomId;
+    }
+
+    public void setRoomId(String roomId) {
+        this.roomId = roomId;
+    }
+
+    public DeuDate getDateOfArrival() {
+        return dateOfArrival;
+    }
+
+    public void setDateOfArrival(DeuDate dateOfArrival) {
+        this.dateOfArrival = dateOfArrival;
+    }
+
+    public DeuDate getDateOfDeparture() {
+        return dateOfDeparture;
+    }
+
+    public void setDateOfDeparture(DeuDate dateOfDeparture) {
+        this.dateOfDeparture = dateOfDeparture;
+    }
+
     public int getGapBetweenDates() {
         int dateOfArrivalDayCount = DeuDate.convertDeuDateToDayCount(dateOfArrival);
         int dateOfDepartureDayCount = DeuDate.convertDeuDateToDayCount(dateOfDeparture);
         return dateOfDepartureDayCount - dateOfArrivalDayCount;
     }
 
-    public void print() {
+    public void print(Customer customer) {
         String space = "%-10s";
-        Customer customer = Hotel.getHotel().getCustomerById(customerId);
+        if (customer == null)
+            return;
         System.out.println("\tRoom #" + roomId + " " +
-                String.format(space, customer.name) + " " +
-                String.format(space, customer.surname) + " " +
+                String.format(space, customer.getName()) + " " +
+                String.format(space, customer.getSurname()) + " " +
                 String.format(space, dateOfArrival) + " " +
                 String.format(space, dateOfDeparture));
     }

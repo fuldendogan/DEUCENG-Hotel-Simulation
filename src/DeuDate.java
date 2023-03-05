@@ -1,9 +1,9 @@
 public class DeuDate {
 
-    static int monthDays[] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-    int day;
-    int month;
-    int year;
+    private static int[] monthDays = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    private int day;
+    private int month;
+    private int year;
 
     public DeuDate() {
     }
@@ -14,28 +14,21 @@ public class DeuDate {
         this.year = year;
     }
 
+    public static int[] getMonthDays() {
+        return monthDays;
+    }
+
+    public static void setMonthDays(int[] monthDays) {
+        DeuDate.monthDays = monthDays;
+    }
+
     public static DeuDate convertStringDateToDeuDate(String stringDate) {
         String[] date = stringDate.split("\\.");
         DeuDate deuDate = new DeuDate();
-        deuDate.day = Integer.valueOf(date[0]);
-        deuDate.month = Integer.valueOf(date[1]);
-        deuDate.year = Integer.valueOf(date[2]);
+        deuDate.day = Integer.parseInt(date[0]);
+        deuDate.month = Integer.parseInt(date[1]);
+        deuDate.year = Integer.parseInt(date[2]);
         return deuDate;
-    }
-
-    public String toString() {
-        return day + "." + month + "." + year;
-    }
-
-    public boolean isBetweenDates(DeuDate startDate, DeuDate endDate) {
-        if (this.year >= startDate.year && this.year <= endDate.year) {
-            if (this.month >= startDate.month && this.month <= endDate.month) {
-                if (this.day >= startDate.day && this.day <= endDate.day) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     public static int convertDeuDateToDayCount(DeuDate deuDate) {
@@ -84,6 +77,41 @@ public class DeuDate {
         return days;
     }
 
+    public int getDay() {
+        return day;
+    }
+
+    public void setDay(int day) {
+        this.day = day;
+    }
+
+    public int getMonth() {
+        return month;
+    }
+
+    public void setMonth(int month) {
+        this.month = month;
+    }
+
+    public int getYear() {
+        return year;
+    }
+
+    public void setYear(int year) {
+        this.year = year;
+    }
+
+    public String toString() {
+        return day + "." + month + "." + year;
+    }
+
+    public boolean isBetweenDates(DeuDate startDate, DeuDate endDate) {
+        if (this.year >= startDate.year && this.year <= endDate.year) {
+            return this.month < startDate.month || this.month > endDate.month || (this.day < startDate.day || this.day > endDate.day);
+        }
+        return true;
+    }
+
     private int getGapBetweenDates(DeuDate startDate) {
         int startDateDayCount = DeuDate.convertDeuDateToDayCount(startDate);
         int endDateDayCount = DeuDate.convertDeuDateToDayCount(this);
@@ -91,7 +119,7 @@ public class DeuDate {
     }
 
     /**
-     * @param targetDate
+     * @param targetDate target date to compare
      * @return 1 if this is greater than targetDate, -1 if this is less than targetDate, 0 if this is equal to targetDate
      */
     public int compareTo(DeuDate targetDate) {
@@ -105,13 +133,7 @@ public class DeuDate {
             } else if (this.month < targetDate.month) {
                 return -1;
             } else {
-                if (this.day > targetDate.day) {
-                    return 1;
-                } else if (this.day < targetDate.day) {
-                    return -1;
-                } else {
-                    return 0;
-                }
+                return Integer.compare(this.day, targetDate.day);
             }
         }
     }

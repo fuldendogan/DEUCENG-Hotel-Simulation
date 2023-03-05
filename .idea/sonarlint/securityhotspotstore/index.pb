@@ -1,6 +1,4 @@
 
-L
-DEUCENG Hotel Simulation.iml,4\8\48cf56819c5e2cabc4e8eb93d51bccddff8c2365
 <
 commands.txt,8\b\8bf05a2d5213d1db26fe3a426dd4b98d87557b4c
 B

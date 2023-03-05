@@ -1,18 +1,55 @@
 public class Room {
-    String roomId;
-    RoomType roomType; //regular , deluxe, suite
-    Boolean hasAirConditioner;
-    Boolean hasBalcony;
-    Integer price;
-
-    public Room() {
-    }
+    private String roomId;
+    private RoomType roomType; //regular , deluxe, suite
+    private Boolean hasAirConditioner;
+    private Boolean hasBalcony;
+    private Integer price;
 
     public Room(String roomId, RoomType roomType, Boolean hasAirConditioner, Boolean hasBalcony, Integer price) {
         this.roomId = roomId;
         this.roomType = roomType;
         this.hasAirConditioner = hasAirConditioner;
         this.hasBalcony = hasBalcony;
+        this.price = price;
+    }
+
+    public String getRoomId() {
+        return roomId;
+    }
+
+    public void setRoomId(String roomId) {
+        this.roomId = roomId;
+    }
+
+    public RoomType getRoomType() {
+        return roomType;
+    }
+
+    public void setRoomType(RoomType roomType) {
+        this.roomType = roomType;
+    }
+
+    public Boolean getHasAirConditioner() {
+        return hasAirConditioner;
+    }
+
+    public void setHasAirConditioner(Boolean hasAirConditioner) {
+        this.hasAirConditioner = hasAirConditioner;
+    }
+
+    public Boolean getHasBalcony() {
+        return hasBalcony;
+    }
+
+    public void setHasBalcony(Boolean hasBalcony) {
+        this.hasBalcony = hasBalcony;
+    }
+
+    public Integer getPrice() {
+        return price;
+    }
+
+    public void setPrice(Integer price) {
         this.price = price;
     }
 
@@ -34,10 +71,7 @@ public class Room {
     }
 
 
-
     public boolean isAvailableBetweenDates(Reservation reservation, DeuDate startDate, DeuDate endDate) {
-        if (reservation.dateOfArrival.isBetweenDates(startDate, endDate) || reservation.dateOfDeparture.isBetweenDates(startDate, endDate))
-            return false;
-        return true;
+        return reservation.getDateOfArrival().isBetweenDates(startDate, endDate) && reservation.getDateOfDeparture().isBetweenDates(startDate, endDate);
     }
 }
