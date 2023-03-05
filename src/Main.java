@@ -6,7 +6,6 @@ public class Main {
     private static final Hotel deuCengHotel = Hotel.getHotel();
 
     public static void main(String[] args) {
-
         try {
             Scanner myReader = new Scanner(new File("commands.txt"));
             while (myReader.hasNextLine()) {
@@ -23,7 +22,7 @@ public class Main {
 
     private static void processCommand(String[] command) {
         String operation = command[0];
-        switch (operation.trim()){
+        switch (operation.trim()) {
             case "addRoom":
                 for (int i = 0; i < Integer.valueOf(command[1]); i++) {
                     Room room = new Room(String.valueOf(deuCengHotel.rooms.size() + 1),
@@ -38,7 +37,7 @@ public class Main {
                 for (Room room : deuCengHotel.rooms)
                     room.print();
                 break;
-            case "addEmployee" :
+            case "addEmployee":
                 Staff staff = new Staff();
                 staff.staffId = String.valueOf(deuCengHotel.staffs.size() + 1);
                 staff.name = command[1];
@@ -89,6 +88,10 @@ public class Main {
                     eachReservation.print();
                 break;
             case "statistics":
+                deuCengHotel.printMostReservedRoom();
+                deuCengHotel.printMOstStayingCustomer();
+                deuCengHotel.printProfit();
+                deuCengHotel.printOccupancyRate();
                 break;
             case "simulation":
                 break;

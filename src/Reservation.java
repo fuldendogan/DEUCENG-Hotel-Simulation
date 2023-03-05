@@ -22,6 +22,12 @@ public class Reservation {
         return null;
     }
 
+    public int getGapBetweenDates() {
+        int dateOfArrivalDayCount = DeuDate.convertDeuDateToDayCount(dateOfArrival);
+        int dateOfDepartureDayCount = DeuDate.convertDeuDateToDayCount(dateOfDeparture);
+        return dateOfDepartureDayCount - dateOfArrivalDayCount;
+    }
+
     public void print() {
         String space = "%-10s";
         Customer customer = Hotel.getHotel().getCustomerById(customerId);
