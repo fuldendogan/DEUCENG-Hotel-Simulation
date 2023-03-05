@@ -7,6 +7,7 @@ public class DeuDate {
 
     public DeuDate() {
     }
+
     public DeuDate(int day, int month, int year) {
         this.day = day;
         this.month = month;
@@ -59,6 +60,59 @@ public class DeuDate {
             }
         } else {
             return monthDays[month];
+        }
+    }
+
+    public static DeuDate[] getDaysBetweenDates(DeuDate startDate, DeuDate endDate) {
+        DeuDate[] days = new DeuDate[endDate.getGapBetweenDates(startDate) + 1];
+        int currentYear = startDate.year;
+        int currentMonth = startDate.month;
+        int currentDay = startDate.day;
+        for (int i = 0; i < days.length; i++) {
+            int dayCountOfTheMonth = DeuDate.getNumberOfDaysOfMonth(currentMonth, startDate.year);
+            if (currentDay > dayCountOfTheMonth) {
+                currentMonth++;
+                if (currentMonth > 12) {
+                    currentYear++;
+                    currentMonth = 1;
+                }
+                currentDay = 1;
+            }
+            days[i] = new DeuDate(currentDay, currentMonth, currentYear);
+            currentDay++;
+        }
+        return days;
+    }
+
+    private int getGapBetweenDates(DeuDate startDate) {
+        int startDateDayCount = DeuDate.convertDeuDateToDayCount(startDate);
+        int endDateDayCount = DeuDate.convertDeuDateToDayCount(this);
+        return endDateDayCount - startDateDayCount;
+    }
+
+    /**
+     * @param targetDate
+     * @return 1 if this is greater than targetDate, -1 if this is less than targetDate, 0 if this is equal to targetDate
+     */
+    public int compareTo(DeuDate targetDate) {
+        if (this.year > targetDate.year) {
+            return 1;
+        } else if (this.year < targetDate.year) {
+            return -1;
+        } else {
+            if (this.month > targetDate.month) {
+                return 1;
+            } else if (this.month < targetDate.month) {
+                return -1;
+            } else {
+                if (this.day > targetDate.day) {
+                    return 1;
+                } else if (this.day < targetDate.day) {
+                    return -1;
+                } else {
+                    return 0;
+                }
+            }
         }
     }
 }

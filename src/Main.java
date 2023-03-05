@@ -94,6 +94,7 @@ public class Main {
                 deuCengHotel.printOccupancyRate();
                 break;
             case "simulation":
+                deuCengHotel.simulation(command[1], command[2]);
                 break;
             case "":
                 break;

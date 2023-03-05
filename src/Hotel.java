@@ -2,6 +2,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class Hotel {
     static private Hotel hotel;//singleton pattern
@@ -185,5 +186,70 @@ public class Hotel {
             System.out.printf("%d%%\t", Math.round(percentage * 100.0 / 100.0));//round to 2 decimal places
         }
         System.out.println();
+    }
+
+    public void simulation(String date1S, String date2S) {
+        //simulation;25.4.2024;2.5.2024
+        //
+        //Day         :      25       26       27       28       29       30        1        2
+        //Customer    :       3        3        3        4        4        2        2        2
+        //Satisfaction:    100%     100%     100%      75%      75%     100%     100%     100%
+        //Average Satisfaction = 93.75%
+
+//        simulation;10.10.2024;12.10.2024
+//
+//Day         :      10       11       12
+//Customer    :       0        0        0
+//Satisfaction:    100%     100%     100%
+//Average Satisfaction = 100%
+        DeuDate date1 = DeuDate.convertStringDateToDeuDate(date1S);
+        DeuDate date2 = DeuDate.convertStringDateToDeuDate(date2S);
+        System.out.println();
+        String space = "%-12s", space2 = "%8s";
+        StringBuilder daysString = new StringBuilder(), customerString = new StringBuilder(), satisfactionString = new StringBuilder();
+        double avgSatisfaction = 0;
+        if (date1.month == date2.month) {
+            for (int dayNumber = date1.day; dayNumber <= date2.day; dayNumber++) {
+                daysString.append(String.format(space2, dayNumber));
+                int customerCount = reservations.stream()
+                        .filter(reservation -> reservation.containsThisDay(date1))
+                        .collect(Collectors.toList()).size();
+                customerString.append(String.format(space2, customerCount));
+                double houseKeeperCount = staffs.stream()
+                        .filter(staff -> staff.job.equals(StaffType.HOUSEKEEPER))
+                        .count();
+                int satisfaction = (int) (100 * ( houseKeeperCount*3/customerCount));
+                if (satisfaction > 100)
+                    satisfaction = 100;
+                avgSatisfaction += satisfaction;
+                satisfactionString.append(String.format(space2, satisfaction + "%"));
+            }
+            avgSatisfaction /= (date2.day - date1.day + 1);
+        } else {
+            DeuDate[] dates = DeuDate.getDaysBetweenDates(date1, date2);
+            for (DeuDate day : dates) {
+                daysString.append(String.format(space2, day.day));
+                int customerCount = reservations.stream()
+                        .filter(reservation -> reservation.containsThisDay(day))
+                        .collect(Collectors.toList()).size();
+                customerString.append(String.format(space2, customerCount));
+                double houseKeeperCount = staffs.stream()
+                        .filter(staff -> staff.job.equals(StaffType.HOUSEKEEPER))
+                        .count();
+                int satisfaction = (int) (100 * ( houseKeeperCount*3/customerCount));
+                if (satisfaction > 100)
+                    satisfaction = 100;
+                avgSatisfaction += satisfaction;
+                satisfactionString.append(String.format(space2, satisfaction + "%"));
+            }
+            avgSatisfaction /= dates.length;
+        }
+        System.out.print(String.format(space, "Day") + ":");
+        System.out.println(daysString);
+        System.out.print(String.format(space, "Customer") + ":");
+        System.out.println(customerString);
+        System.out.print(String.format(space, "Satisfaction") + ":");
+        System.out.println(satisfactionString);
+        System.out.println("Average Satisfaction = " + avgSatisfaction + "%");
     }
 }

@@ -37,4 +37,10 @@ public class Reservation {
                 String.format(space, dateOfArrival) + " " +
                 String.format(space, dateOfDeparture));
     }
+
+    public boolean containsThisDay(DeuDate targetDate) {
+        boolean afterArrivalDate = dateOfArrival.compareTo(targetDate) <= 0;
+        boolean beforeDepartureDate = dateOfDeparture.compareTo(targetDate) > 0;
+        return afterArrivalDate && beforeDepartureDate;
+    }
 }
