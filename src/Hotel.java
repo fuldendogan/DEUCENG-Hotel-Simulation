@@ -170,7 +170,6 @@ public class Hotel {
                         reservedDayCount = dayCountOfTheMonth;
                 }
 
-
                 if (monthlyOccupancyRate.containsKey(deuDate)) {
                     monthlyOccupancyRate.put(deuDate, monthlyOccupancyRate.get(deuDate) + reservedDayCount);
                 } else {
@@ -188,6 +187,3 @@ public class Hotel {
         System.out.println();
     }
 }
-
-//35/124   0.28
-//4.ay 5,10,3,21 = 39/120 0.325 => 0.33
