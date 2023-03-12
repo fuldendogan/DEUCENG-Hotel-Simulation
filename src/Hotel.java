@@ -1,6 +1,4 @@
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class Hotel {
@@ -9,12 +7,10 @@ public class Hotel {
     private Address address;
     private PhoneNumber phoneNumber;
     private Double starts;
-    private Integer maxNumberOfRooms = 30;
-    private Integer maxNumberOfStaff = 50;
-    private List<Room> rooms = new ArrayList<>();
-    private List<Staff> staffs = new ArrayList<>();
-    private List<Customer> customers = new ArrayList<>();
-    private List<Reservation> reservations = new ArrayList<>();
+    private Room[] rooms = new Room[0];
+    private Staff[] staffs = new Staff[0];
+    private Customer[] customers = new Customer[0];
+    private Reservation[] reservations = new Reservation[0];
 
     public String getName() {
         return name;
@@ -56,51 +52,36 @@ public class Hotel {
         this.starts = starts;
     }
 
-    public Integer getMaxNumberOfRooms() {
-        return maxNumberOfRooms;
-    }
 
-    public void setMaxNumberOfRooms(Integer maxNumberOfRooms) {
-        this.maxNumberOfRooms = maxNumberOfRooms;
-    }
-
-    public Integer getMaxNumberOfStaff() {
-        return maxNumberOfStaff;
-    }
-
-    public void setMaxNumberOfStaff(Integer maxNumberOfStaff) {
-        this.maxNumberOfStaff = maxNumberOfStaff;
-    }
-
-    public List<Room> getRooms() {
+    public Room[] getRooms() {
         return rooms;
     }
 
-    public void setRooms(List<Room> rooms) {
+    public void setRooms(Room[] rooms) {
         this.rooms = rooms;
     }
 
-    public List<Staff> getStaffs() {
+    public Staff[] getStaffs() {
         return staffs;
     }
 
-    public void setStaffs(List<Staff> staffs) {
+    public void setStaffs(Staff[] staffs) {
         this.staffs = staffs;
     }
 
-    public List<Customer> getCustomers() {
+    public Customer[] getCustomers() {
         return customers;
     }
 
-    public void setCustomers(List<Customer> customers) {
+    public void setCustomers(Customer[] customers) {
         this.customers = customers;
     }
 
-    public List<Reservation> getReservations() {
+    public Reservation[] getReservations() {
         return reservations;
     }
 
-    public void setReservations(List<Reservation> reservations) {
+    public void setReservations(Reservation[] reservations) {
         this.reservations = reservations;
     }
 
@@ -166,7 +147,7 @@ public class Hotel {
     }
 
     public void printMostReservedRoom() {
-        int[] roomReservationDayCount = new int[rooms.size() + 1];
+        int[] roomReservationDayCount = new int[rooms.length + 1];
         for (Reservation reservation : reservations) {
             roomReservationDayCount[Integer.parseInt(reservation.getRoomId())] += reservation.getGapBetweenDates();
         }
@@ -183,7 +164,7 @@ public class Hotel {
     }
 
     public void printMOstStayingCustomer() {
-        int[] customerReservationDayCount = new int[customers.size() + 1];
+        int[] customerReservationDayCount = new int[customers.length + 1];
         for (Reservation reservation : reservations) {
             customerReservationDayCount[Integer.parseInt(reservation.getRoomId())] += reservation.getGapBetweenDates();
         }
@@ -202,9 +183,9 @@ public class Hotel {
     public void printProfit() {
         int income = 0;
         System.out.print("\t 3.Income = ");
-        for (int i = 0; i < reservations.size(); i++) {
-            int eachIncome = reservations.get(i).getGapBetweenDates() * getRoomById(reservations.get(i).getRoomId()).getPrice();
-            if (i == (reservations.size() - 1))
+        for (int i = 0; i < reservations.length; i++) {
+            int eachIncome = reservations[i].getGapBetweenDates() * getRoomById(reservations[i].getRoomId()).getPrice();
+            if (i == (reservations.length - 1))
                 System.out.printf("%,d", eachIncome);
             else
                 System.out.printf("%,d + ", eachIncome);
@@ -259,9 +240,9 @@ public class Hotel {
         }
         System.out.print("\n\t\t");
         for (int i = 1; i <= 12; i++) {
-            double dayCountOfTheMonth = monthlyOccupancyRate.getOrDefault(i + ";" + reservations.get(0).getDateOfArrival().getYear(), 0);
-            double numberOfDaysOfMonth = DeuDate.getNumberOfDaysOfMonth(i, reservations.get(0).getDateOfArrival().getYear());
-            double percentage = dayCountOfTheMonth / (numberOfDaysOfMonth * rooms.size()) * 100;
+            double dayCountOfTheMonth = monthlyOccupancyRate.getOrDefault(i + ";" + reservations[0].getDateOfArrival().getYear(), 0);
+            double numberOfDaysOfMonth = DeuDate.getNumberOfDaysOfMonth(i, reservations[0].getDateOfArrival().getYear());
+            double percentage = dayCountOfTheMonth / (numberOfDaysOfMonth * rooms.length) * 100;
             System.out.printf("%d%%\t", Math.round(percentage * 100.0 / 100.0));//round to 2 decimal places
         }
         System.out.println();
@@ -277,14 +258,22 @@ public class Hotel {
         if (date1.getMonth() == date2.getMonth()) {
             for (int dayNumber = date1.getDay(); dayNumber <= date2.getDay(); dayNumber++) {
                 daysString.append(String.format(space2, dayNumber));
-                int customerCount = reservations.stream()
-                        .filter(reservation -> reservation.containsThisDay(date1))
-                        .toList().size();
+                double customerCount = 0;
+                for (Reservation reservation : reservations) {
+                    if (reservation.containsThisDay(date1)) {
+                        customerCount++;
+                    }
+                }
                 customerString.append(String.format(space2, customerCount));
-                double houseKeeperCount = staffs.stream()
-                        .filter(staff -> staff.getJob().equals(StaffType.HOUSEKEEPER))
-                        .count();
-                int satisfaction = (int) (100 * (houseKeeperCount * 3 / customerCount));
+                double houseKeeperCount = 0;
+                for (Staff staff : staffs) {
+                    if (staff.getJob().equals(StaffType.HOUSEKEEPER)) {
+                        houseKeeperCount++;
+                    }
+                }
+                int satisfaction = 100;
+                if (customerCount != 0)
+                    satisfaction = (int) (100 * (houseKeeperCount * 3 / customerCount));
                 if (satisfaction > 100)
                     satisfaction = 100;
                 avgSatisfaction += satisfaction;
@@ -295,14 +284,22 @@ public class Hotel {
             DeuDate[] dates = DeuDate.getDaysBetweenDates(date1, date2);
             for (DeuDate day : dates) {
                 daysString.append(String.format(space2, day.getDay()));
-                int customerCount = reservations.stream()
-                        .filter(reservation -> reservation.containsThisDay(day))
-                        .toList().size();
+                double customerCount = 0;
+                for (Reservation reservation : reservations) {
+                    if (reservation.containsThisDay(day)) {
+                        customerCount++;
+                    }
+                }
                 customerString.append(String.format(space2, customerCount));
-                double houseKeeperCount = staffs.stream()
-                        .filter(staff -> staff.getJob().equals(StaffType.HOUSEKEEPER))
-                        .count();
-                int satisfaction = (int) (100 * (houseKeeperCount * 3 / customerCount));
+                double houseKeeperCount = 0;
+                for (Staff staff : staffs) {
+                    if (staff.getJob().equals(StaffType.HOUSEKEEPER)) {
+                        houseKeeperCount++;
+                    }
+                }
+                int satisfaction = 100;
+                if (customerCount != 0)
+                    satisfaction = (int) (100 * (houseKeeperCount * 3 / customerCount));
                 if (satisfaction > 100)
                     satisfaction = 100;
                 avgSatisfaction += satisfaction;
@@ -324,12 +321,12 @@ public class Hotel {
         switch (operation.trim()) {
             case "addRoom":
                 for (int i = 0; i < Integer.parseInt(command[1]); i++) {
-                    Room room = new Room(String.valueOf(rooms.size() + 1),
+                    Room room = new Room(String.valueOf(rooms.length + 1),
                             RoomType.valueOf(command[2].toUpperCase()),
                             Boolean.parseBoolean(command[3]),
                             Boolean.parseBoolean(command[4]),
                             Integer.valueOf(command[5]));
-                    rooms.add(room);
+                    addToArray(rooms, room);
                 }
                 break;
             case "listRooms":
@@ -338,7 +335,7 @@ public class Hotel {
                 break;
             case "addEmployee":
                 Staff staff = new Staff();
-                staff.setStaffId(String.valueOf(staffs.size() + 1));
+                staff.setStaffId(String.valueOf(staffs.length + 1));
                 staff.setName(command[1]);
                 staff.setSurname(command[2]);
                 staff.setGender(command[3]);
@@ -348,7 +345,7 @@ public class Hotel {
                 staff.setPhoneNumber(PhoneNumber.convertStringPhoneNumberToPhoneNumber(command[8]));
                 staff.setJob(StaffType.valueOf(command[9].toUpperCase()));
                 staff.setSalary(Double.valueOf(command[10]));
-                staffs.add(staff);
+                addToArray(staffs, staff);
                 break;
             case "listEmployees":
                 for (Staff eachStaff : staffs)
@@ -356,7 +353,7 @@ public class Hotel {
                 break;
             case "addCustomer":
                 Customer customer = new Customer();
-                customer.setCustomerId(String.valueOf(customers.size() + 1));
+                customer.setCustomerId(String.valueOf(customers.length + 1));
                 customer.setName(command[1]);
                 customer.setSurname(command[2]);
                 customer.setGender(command[3]);
@@ -364,7 +361,7 @@ public class Hotel {
                 Address customerAddress = new Address(command[5], command[6], command[7]);
                 customer.setContactAddress(customerAddress);
                 customer.setPhoneNumber(PhoneNumber.convertStringPhoneNumberToPhoneNumber(command[8]));
-                customers.add(customer);
+                addToArray(customers, customer);
                 break;
             case "listCustomers":
                 for (Customer eachCustomer : customers)
@@ -380,7 +377,7 @@ public class Hotel {
                 Reservation reservation = new Reservation(command[1], command[2],
                         DeuDate.convertStringDateToDeuDate(command[3]),
                         DeuDate.convertStringDateToDeuDate(command[4]));
-                reservations.add(reservation);
+                addToArray(reservations, reservation);
                 break;
             case "listReservations":
                 for (Reservation eachReservation : reservations)
@@ -400,5 +397,59 @@ public class Hotel {
             default:
                 System.out.println("Invalid command, command: \"" + operation + "\" is not supported");
         }
+    }
+
+    private <T> void addToArray(T[] array, T newElement) {
+        if (array instanceof Room[]) {
+            if (array.length == Constants.MAX_NUMBER_OF_ROOMS) {
+                System.out.println("Room count is full, cannot add more room");
+                return;
+            }
+            Room[] newArray = new Room[array.length + 1];
+            for (int i = 0; i < array.length; i++) {
+                newArray[i] = (Room) array[i];
+            }
+            newArray[array.length] = (Room) newElement;
+            rooms = newArray;
+        } else if (array instanceof Staff[]) {
+            if (array.length == Constants.MAX_NUMBER_OF_STAFF) {
+                System.out.println("Staff count is full, cannot add more staff");
+                return;
+            }
+            Staff[] newArray = new Staff[array.length + 1];
+            for (int i = 0; i < array.length; i++) {
+                newArray[i] = (Staff) array[i];
+            }
+            newArray[array.length] = (Staff) newElement;
+            staffs = newArray;
+        } else if (array instanceof Customer[]) {
+            Customer[] newArray = new Customer[array.length + 1];
+            for (int i = 0; i < array.length; i++) {
+                newArray[i] = (Customer) array[i];
+            }
+            newArray[array.length] = (Customer) newElement;
+            customers = newArray;
+        } else if (array instanceof Reservation[]) {
+            if (!isRoomAvailable((Reservation) newElement)) {
+                System.out.println("Room #"+((Reservation) newElement).getRoomId()+" is not available");
+                return;
+            }
+            Reservation[] newArray = new Reservation[array.length + 1];
+            for (int i = 0; i < array.length; i++) {
+                newArray[i] = (Reservation) array[i];
+            }
+            newArray[array.length] = (Reservation) newElement;
+            reservations = newArray;
+        }
+    }
+
+    private boolean isRoomAvailable(Reservation reservation) {
+        Room room = getRoomById(reservation.getRoomId());
+        if (room == null)
+            return false;
+        Reservation existReservation = Reservation.getReservationByRoomId(reservations, room.getRoomId());
+        if (existReservation == null || room.isAvailableBetweenDates(existReservation, reservation.getDateOfArrival(), reservation.getDateOfDeparture()))
+            return true;
+        return false;
     }
 }

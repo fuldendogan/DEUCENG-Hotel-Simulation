@@ -1,4 +1,3 @@
-import java.util.List;
 
 public class Reservation {
     private String customerId;
@@ -14,7 +13,7 @@ public class Reservation {
         this.dateOfDeparture = dateOfDeparture;
     }
 
-    public static Reservation getReservationByRoomId(List<Reservation> reservations, String roomId) {
+    public static Reservation getReservationByRoomId(Reservation[] reservations, String roomId) {
         for (Reservation reservation : reservations) {
             if (reservation.roomId.equals(roomId))
                 return reservation;
