@@ -77,6 +77,12 @@ public class DeuDate {
         return days;
     }
 
+    public static boolean isReservationInBetweenExpectedDates(Reservation reservation) {
+        DeuDate startDate = DeuDate.convertStringDateToDeuDate(Constants.START_DATE);
+        DeuDate endDate = DeuDate.convertStringDateToDeuDate(Constants.END_DATE);
+        return reservation.getDateOfArrival().isBetweenDates(startDate, endDate) && reservation.getDateOfDeparture().isBetweenDates(startDate, endDate);
+    }
+
     public int getDay() {
         return day;
     }
@@ -105,11 +111,11 @@ public class DeuDate {
         return day + "." + month + "." + year;
     }
 
-    public boolean isBetweenDates(DeuDate startDate, DeuDate endDate) {
-        if (this.year >= startDate.year && this.year <= endDate.year) {
-            return this.month < startDate.month || this.month > endDate.month || (this.day < startDate.day || this.day > endDate.day);
-        }
-        return true;
+    public boolean isBetweenDates(DeuDate startDate, DeuDate endDate) {//25.4.2024
+        boolean isBetweenYears = this.year <= endDate.year && this.year >= startDate.year;
+        boolean isBetweenMonths = this.month <= endDate.month && this.month >= startDate.month;
+        boolean isBetweenDays = this.day <= endDate.day && this.day >= startDate.day;
+        return isBetweenYears && isBetweenMonths && isBetweenDays;
     }
 
     private int getGapBetweenDates(DeuDate startDate) {

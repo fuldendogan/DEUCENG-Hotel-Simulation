@@ -7,10 +7,10 @@ public class Hotel {
     private Address address;
     private PhoneNumber phoneNumber;
     private Double starts;
-    private Room[] rooms = new Room[0];
-    private Staff[] staffs = new Staff[0];
-    private Customer[] customers = new Customer[0];
-    private Reservation[] reservations = new Reservation[0];
+    private static Room[] rooms = new Room[0];
+    private static Staff[] staffs = new Staff[0];
+    private static Customer[] customers = new Customer[0];
+    private static Reservation[] reservations = new Reservation[0];
 
     public String getName() {
         return name;
@@ -52,7 +52,6 @@ public class Hotel {
         this.starts = starts;
     }
 
-
     public Room[] getRooms() {
         return rooms;
     }
@@ -85,7 +84,7 @@ public class Hotel {
         this.reservations = reservations;
     }
 
-    public Customer getCustomerById(String customerId) {
+    public static Customer getCustomerById(String customerId) {
         for (Customer customer : customers) {
             if (customer.getCustomerId().equals(customerId))
                 return customer;
@@ -93,7 +92,7 @@ public class Hotel {
         return null;
     }
 
-    public Room getRoomById(String roomId) {
+    public static Room getRoomById(String roomId) {
         for (Room room : rooms) {
             if (room.getRoomId().equals(roomId))
                 return room;
@@ -101,7 +100,7 @@ public class Hotel {
         return null;
     }
 
-    public void searchCustomer(String key) {
+    public static void searchCustomer(String key) {
         boolean found = false;
         if (key.contains("*")) {
             for (Customer customer : customers) {
@@ -126,10 +125,10 @@ public class Hotel {
             }
         }
         if (!found)
-            System.out.println("No customer found with name \"" + key + "\".");
+            Utils.logError("No customer found with name \"" + key + "\".");
     }
 
-    public void searchRoom(String key1, String key2) {
+    public static void searchRoom(String key1, String key2) {
         //key=25.4.2024;30.4.2024
         DeuDate startDate = DeuDate.convertStringDateToDeuDate(key1);
         DeuDate endDate = DeuDate.convertStringDateToDeuDate(key2);
@@ -143,10 +142,10 @@ public class Hotel {
             }
         }
         if (!found)
-            System.out.println("No room found for the given dates.");
+            Utils.logError("No room found for the given dates.");
     }
 
-    public void printMostReservedRoom() {
+    public static void printMostReservedRoom() {
         int[] roomReservationDayCount = new int[rooms.length + 1];
         for (Reservation reservation : reservations) {
             roomReservationDayCount[Integer.parseInt(reservation.getRoomId())] += reservation.getGapBetweenDates();
@@ -163,7 +162,7 @@ public class Hotel {
 
     }
 
-    public void printMOstStayingCustomer() {
+    public static void printMOstStayingCustomer() {
         int[] customerReservationDayCount = new int[customers.length + 1];
         for (Reservation reservation : reservations) {
             customerReservationDayCount[Integer.parseInt(reservation.getRoomId())] += reservation.getGapBetweenDates();
@@ -180,7 +179,7 @@ public class Hotel {
         System.out.println("\t 2.The best customer = " + customer.getName() + " " + customer.getSurname() + " " + max + " days");
     }
 
-    public void printProfit() {
+    public static void printProfit() {
         int income = 0;
         System.out.print("\t 3.Income = ");
         for (int i = 0; i < reservations.length; i++) {
@@ -205,7 +204,7 @@ public class Hotel {
         System.out.printf("\n\t   Profit = %,d  - %,d - %,d = %,d", income, salary, constantExpenses, profit);
     }
 
-    public void printOccupancyRate() {
+    public static void printOccupancyRate() {
         System.out.println("\n\t 4.Monthly occupancy rate");
         System.out.print("\t\t");
         for (int i = 1; i <= 12; i++) {
@@ -248,7 +247,7 @@ public class Hotel {
         System.out.println();
     }
 
-    public void simulation(String date1S, String date2S) {
+    public static void simulation(String date1S, String date2S) {
         DeuDate date1 = DeuDate.convertStringDateToDeuDate(date1S);
         DeuDate date2 = DeuDate.convertStringDateToDeuDate(date2S);
         System.out.println();
@@ -316,7 +315,7 @@ public class Hotel {
         System.out.println("Average Satisfaction = " + avgSatisfaction + "%");
     }
 
-    public void processCommand(String[] command) {
+    public static void processCommand(String[] command) {
         String operation = command[0];
         switch (operation.trim()) {
             case "addRoom":
@@ -326,7 +325,7 @@ public class Hotel {
                             Boolean.parseBoolean(command[3]),
                             Boolean.parseBoolean(command[4]),
                             Integer.valueOf(command[5]));
-                    addToArray(rooms, room);
+                    addToRooms(room);
                 }
                 break;
             case "listRooms":
@@ -345,7 +344,7 @@ public class Hotel {
                 staff.setPhoneNumber(PhoneNumber.convertStringPhoneNumberToPhoneNumber(command[8]));
                 staff.setJob(StaffType.valueOf(command[9].toUpperCase()));
                 staff.setSalary(Double.valueOf(command[10]));
-                addToArray(staffs, staff);
+                addToStaffs(staff);
                 break;
             case "listEmployees":
                 for (Staff eachStaff : staffs)
@@ -361,7 +360,7 @@ public class Hotel {
                 Address customerAddress = new Address(command[5], command[6], command[7]);
                 customer.setContactAddress(customerAddress);
                 customer.setPhoneNumber(PhoneNumber.convertStringPhoneNumberToPhoneNumber(command[8]));
-                addToArray(customers, customer);
+                addToCustomers(customer);
                 break;
             case "listCustomers":
                 for (Customer eachCustomer : customers)
@@ -377,7 +376,7 @@ public class Hotel {
                 Reservation reservation = new Reservation(command[1], command[2],
                         DeuDate.convertStringDateToDeuDate(command[3]),
                         DeuDate.convertStringDateToDeuDate(command[4]));
-                addToArray(reservations, reservation);
+                addToReservations(reservation);
                 break;
             case "listReservations":
                 for (Reservation eachReservation : reservations)
@@ -395,55 +394,64 @@ public class Hotel {
             case "":
                 break;
             default:
-                System.out.println("Invalid command, command: \"" + operation + "\" is not supported");
+                Utils.logError("Invalid command, command: \"" + operation + "\" is not supported");
         }
     }
 
-    private <T> void addToArray(T[] array, T newElement) {
-        if (array instanceof Room[]) {
-            if (array.length == Constants.MAX_NUMBER_OF_ROOMS) {
-                System.out.println("Room count is full, cannot add more room");
-                return;
-            }
-            Room[] newArray = new Room[array.length + 1];
-            for (int i = 0; i < array.length; i++) {
-                newArray[i] = (Room) array[i];
-            }
-            newArray[array.length] = (Room) newElement;
-            rooms = newArray;
-        } else if (array instanceof Staff[]) {
-            if (array.length == Constants.MAX_NUMBER_OF_STAFF) {
-                System.out.println("Staff count is full, cannot add more staff");
-                return;
-            }
-            Staff[] newArray = new Staff[array.length + 1];
-            for (int i = 0; i < array.length; i++) {
-                newArray[i] = (Staff) array[i];
-            }
-            newArray[array.length] = (Staff) newElement;
-            staffs = newArray;
-        } else if (array instanceof Customer[]) {
-            Customer[] newArray = new Customer[array.length + 1];
-            for (int i = 0; i < array.length; i++) {
-                newArray[i] = (Customer) array[i];
-            }
-            newArray[array.length] = (Customer) newElement;
-            customers = newArray;
-        } else if (array instanceof Reservation[]) {
-            if (!isRoomAvailable((Reservation) newElement)) {
-                System.out.println("Room #"+((Reservation) newElement).getRoomId()+" is not available");
-                return;
-            }
-            Reservation[] newArray = new Reservation[array.length + 1];
-            for (int i = 0; i < array.length; i++) {
-                newArray[i] = (Reservation) array[i];
-            }
-            newArray[array.length] = (Reservation) newElement;
-            reservations = newArray;
+    private static void addToReservations(Reservation reservation) {
+        if (!DeuDate.isReservationInBetweenExpectedDates(reservation)) {
+            Utils.logError("This reservation dates are: " + reservation.getDateOfArrival() + " - " + reservation.getDateOfDeparture() + " but expected dates are: " + Constants.START_DATE + " - " + Constants.END_DATE);
+            return;
         }
+
+        if (!isRoomAvailable(reservation)) {
+            Utils.logError("Room #" + (reservation).getRoomId() + " is not available");
+            return;
+        }
+        Reservation[] newArray = new Reservation[reservations.length + 1];
+        for (int i = 0; i < reservations.length; i++) {
+            newArray[i] = reservations[i];
+        }
+        newArray[reservations.length] = reservation;
+        reservations = newArray;
     }
 
-    private boolean isRoomAvailable(Reservation reservation) {
+    private static void addToCustomers(Customer customer) {
+        Customer[] newArray = new Customer[customers.length + 1];
+        for (int i = 0; i < customers.length; i++) {
+            newArray[i] = customers[i];
+        }
+        newArray[customers.length] = customer;
+        customers = newArray;
+    }
+
+    private static void addToStaffs(Staff staff) {
+        if (staffs.length == Constants.MAX_NUMBER_OF_STAFF) {
+            Utils.logError("Staff count is full, cannot add more staff");
+            return;
+        }
+        Staff[] newArray = new Staff[staffs.length + 1];
+        for (int i = 0; i < staffs.length; i++) {
+            newArray[i] = staffs[i];
+        }
+        newArray[staffs.length] = staff;
+        staffs = newArray;
+    }
+
+    private static void addToRooms(Room room) {
+        if (rooms.length == Constants.MAX_NUMBER_OF_ROOMS) {
+            Utils.logError("Room count is full, cannot add more room");
+            return;
+        }
+        Room[] newArray = new Room[rooms.length + 1];
+        for (int i = 0; i < rooms.length; i++) {
+            newArray[i] = rooms[i];
+        }
+        newArray[rooms.length] = room;
+        rooms = newArray;
+    }
+
+    private static boolean isRoomAvailable(Reservation reservation) {
         Room room = getRoomById(reservation.getRoomId());
         if (room == null)
             return false;
