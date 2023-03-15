@@ -89,6 +89,7 @@ public class Hotel {
             if (customer.getCustomerId().equals(customerId))
                 return customer;
         }
+        Utils.logError("Customer not found with id: " + customerId);
         return null;
     }
 
@@ -97,6 +98,7 @@ public class Hotel {
             if (room.getRoomId().equals(roomId))
                 return room;
         }
+        Utils.logError("Room not found with id: " + roomId);
         return null;
     }
 
@@ -125,7 +127,7 @@ public class Hotel {
             }
         }
         if (!found)
-            Utils.logError("No customer found with name \"" + key + "\".");
+            Utils.logWarning("No customer found with name \"" + key + "\".");
     }
 
     public static void searchRoom(String key1, String key2) {
@@ -142,7 +144,7 @@ public class Hotel {
             }
         }
         if (!found)
-            Utils.logError("No room found for the given dates.");
+            Utils.logWarning("No room found for the given dates.");
     }
 
     public static void printMostReservedRoom() {
@@ -159,10 +161,9 @@ public class Hotel {
             }
         }
         System.out.println("\t 1.The most reserved room = Room #" + roomId + " with " + max + " days reserved.");
-
     }
 
-    public static void printMOstStayingCustomer() {
+    public static void printMostStayingCustomer() {
         int[] customerReservationDayCount = new int[customers.length + 1];
         for (Reservation reservation : reservations) {
             customerReservationDayCount[Integer.parseInt(reservation.getRoomId())] += reservation.getGapBetweenDates();
@@ -384,7 +385,7 @@ public class Hotel {
                 break;
             case "statistics":
                 printMostReservedRoom();
-                printMOstStayingCustomer();
+                printMostStayingCustomer();
                 printProfit();
                 printOccupancyRate();
                 break;
@@ -394,26 +395,38 @@ public class Hotel {
             case "":
                 break;
             default:
-                Utils.logError("Invalid command, command: \"" + operation + "\" is not supported");
+                Utils.logWarning("Invalid command, command: \"" + operation + "\" is not supported");
         }
     }
 
     private static void addToReservations(Reservation reservation) {
         if (!DeuDate.isReservationInBetweenExpectedDates(reservation)) {
-            Utils.logError("This reservation dates are: " + reservation.getDateOfArrival() + " - " + reservation.getDateOfDeparture() + " but expected dates are: " + Constants.START_DATE + " - " + Constants.END_DATE);
+            Utils.logWarning("This reservation dates are: " + reservation.getDateOfArrival() + " - " + reservation.getDateOfDeparture() + " but expected dates are: " + Constants.START_DATE + " - " + Constants.END_DATE);
+            return;
+        }
+        if (!isRoomAvailable(reservation)) {
+            Utils.logWarning("Room #" + (reservation).getRoomId() + " is not available");
+            return;
+        }
+        if (!isCustomerExists(reservation)) {
+            Utils.logWarning("Customer #" + (reservation).getCustomerId() + " is not exists");
             return;
         }
 
-        if (!isRoomAvailable(reservation)) {
-            Utils.logError("Room #" + (reservation).getRoomId() + " is not available");
-            return;
-        }
         Reservation[] newArray = new Reservation[reservations.length + 1];
         for (int i = 0; i < reservations.length; i++) {
             newArray[i] = reservations[i];
         }
         newArray[reservations.length] = reservation;
         reservations = newArray;
+    }
+
+    private static boolean isCustomerExists(Reservation reservation) {
+        for (Customer customer : customers) {
+            if (customer.getCustomerId().equals(reservation.getCustomerId()))
+                return true;
+        }
+        return false;
     }
 
     private static void addToCustomers(Customer customer) {
@@ -427,7 +440,7 @@ public class Hotel {
 
     private static void addToStaffs(Staff staff) {
         if (staffs.length == Constants.MAX_NUMBER_OF_STAFF) {
-            Utils.logError("Staff count is full, cannot add more staff");
+            Utils.logWarning("Staff count is full, cannot add more staff");
             return;
         }
         Staff[] newArray = new Staff[staffs.length + 1];
@@ -440,13 +453,13 @@ public class Hotel {
 
     private static void addToRooms(Room room) {
         if (rooms.length == Constants.MAX_NUMBER_OF_ROOMS) {
-            Utils.logError("Room count is full, cannot add more room");
+            Utils.logWarning("Room count is full, cannot add more room");
             return;
         }
         Room[] newArray = new Room[rooms.length + 1];
         for (int i = 0; i < rooms.length; i++) {
             newArray[i] = rooms[i];
-        }
+        }//alternative System.arraycopy(rooms, 0, newArray, 0, rooms.length);
         newArray[rooms.length] = room;
         rooms = newArray;
     }
@@ -456,8 +469,6 @@ public class Hotel {
         if (room == null)
             return false;
         Reservation existReservation = Reservation.getReservationByRoomId(reservations, room.getRoomId());
-        if (existReservation == null || room.isAvailableBetweenDates(existReservation, reservation.getDateOfArrival(), reservation.getDateOfDeparture()))
-            return true;
-        return false;
+        return existReservation == null || room.isAvailableBetweenDates(existReservation, reservation.getDateOfArrival(), reservation.getDateOfDeparture());
     }
 }
