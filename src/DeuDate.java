@@ -32,7 +32,6 @@ public class DeuDate {
     }
 
     public static int convertDeuDateToDayCount(DeuDate deuDate) {
-        //#ref:https://www.geeksforgeeks.org/find-number-of-days-between-two-given-dates/
         int dayCount = deuDate.day;
         for (int i = 1; i < deuDate.month; i++) {
             dayCount += monthDays[i];

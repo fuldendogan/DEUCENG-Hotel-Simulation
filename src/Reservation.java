@@ -3,7 +3,6 @@ public class Reservation {
     private String customerId;
     private String roomId;
     private DeuDate dateOfArrival;
-    //It is expected to make a reservation between 01.01.2024 and 31.12.2024.
     private DeuDate dateOfDeparture;
 
     public Reservation(String customerId, String roomId, DeuDate dateOfArrival, DeuDate dateOfDeparture) {
