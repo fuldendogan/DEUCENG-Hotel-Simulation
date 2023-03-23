@@ -98,7 +98,6 @@ public class Hotel {
             if (room.getRoomId().equals(roomId))
                 return room;
         }
-        Utils.logError("Room not found with id: " + roomId);
         return null;
     }
 
@@ -211,6 +210,40 @@ public class Hotel {
         for (int i = 1; i <= 12; i++) {
             System.out.printf("%d\t", i);
         }
+        // HashMap kullanilmamasi durumunda:
+//        int[] monthlyOccupancyRate = new int[12];
+//
+//        for (Reservation reservation : reservations) {
+//            int startMonth = reservation.getDateOfArrival().getMonth() - 1;
+//            int endMonth = reservation.getDateOfDeparture().getMonth() - 1;
+//            for (int i = startMonth; i <= endMonth; i++) {
+//                int dayCountOfTheMonth = DeuDate.getNumberOfDaysOfMonth(i + 1, reservation.getDateOfArrival().getYear());
+//
+//                int reservedDayCount;
+//                if (startMonth == endMonth)
+//                    reservedDayCount = reservation.getDateOfDeparture().getDay() - reservation.getDateOfArrival().getDay();
+//                else {
+//                    if (i == startMonth)
+//                        reservedDayCount = dayCountOfTheMonth - reservation.getDateOfArrival().getDay() + 1;
+//                    else if (i == endMonth)
+//                        reservedDayCount = reservation.getDateOfDeparture().getDay() - 1;
+//                    else
+//                        reservedDayCount = dayCountOfTheMonth;
+//                }
+//
+//                monthlyOccupancyRate[i] += reservedDayCount;
+//            }
+//        }
+//
+//        System.out.print("\n\t\t");
+//        for (int i = 0; i < 12; i++) {
+//            double dayCountOfTheMonth = monthlyOccupancyRate[i];
+//            double numberOfDaysOfMonth = DeuDate.getNumberOfDaysOfMonth(i + 1, reservations[0].getDateOfArrival().getYear());
+//            double percentage = dayCountOfTheMonth / (numberOfDaysOfMonth * rooms.length) * 100;
+//            System.out.printf("%d%%\t", Math.round(percentage * 100.0 / 100.0));//round to 2 decimal places
+//        }
+//        System.out.println();
+
         Map<String, Integer> monthlyOccupancyRate = new HashMap<>();
         for (Reservation reservation : reservations) {
             int startMonth = reservation.getDateOfArrival().getMonth();
@@ -254,6 +287,8 @@ public class Hotel {
         System.out.println();
         String space = "%-12s", space2 = "%8s";
         StringBuilder daysString = new StringBuilder(), customerString = new StringBuilder(), satisfactionString = new StringBuilder();
+        //    String daysString = "", customerString = "", satisfactionString = ""; bu sekilde de tutulabilir
+        //    Boyle yapilirsa daysString.append yerine bu format kullanilir: daysString += String.format(space2, dayNumber);
         double avgSatisfaction = 0;
         if (date1.getMonth() == date2.getMonth()) {
             for (int dayNumber = date1.getDay(); dayNumber <= date2.getDay(); dayNumber++) {
@@ -351,6 +386,9 @@ public class Hotel {
                 for (Staff eachStaff : staffs)
                     eachStaff.print();
                 break;
+            case "deleteEmployee":
+                deleteEmployee(command[1]);
+                break;
             case "addCustomer":
                 Customer customer = new Customer();
                 customer.setCustomerId(String.valueOf(customers.length + 1));
@@ -399,19 +437,34 @@ public class Hotel {
         }
     }
 
+    private static void deleteEmployee(String employeeId) {
+        int index = -1;
+        for (int i = 0; i < staffs.length; i++) {
+            if (staffs[i].getStaffId().equals(employeeId)) {
+                index = i;
+                break;
+            }
+        }
+        if (index == -1) {
+            Utils.logWarning("Employee not found with id: #" + employeeId + ".");
+            return;
+        }
+            Staff[] newStaffs = new Staff[staffs.length - 1];
+            int newIndex = 0;
+            for (Staff staff : staffs) {
+                if (!staff.getStaffId().equals(employeeId)) {
+                    newStaffs[newIndex] = staff;
+                    newIndex++;
+                }
+            }
+            staffs = newStaffs;
+            System.out.println("Employee with id #" + employeeId + " has been deleted.");
+    }
+
     private static void addToReservations(Reservation reservation) {
-        if (!DeuDate.isReservationInBetweenExpectedDates(reservation)) {
-            Utils.logWarning("This reservation dates are: " + reservation.getDateOfArrival() + " - " + reservation.getDateOfDeparture() + " but expected dates are: " + Constants.START_DATE + " - " + Constants.END_DATE);
+        boolean thereIsError = checkReservation(reservation);
+        if (thereIsError)
             return;
-        }
-        if (!isRoomAvailable(reservation)) {
-            Utils.logWarning("Room #" + (reservation).getRoomId() + " is not available");
-            return;
-        }
-        if (!isCustomerExists(reservation)) {
-            Utils.logWarning("Customer #" + (reservation).getCustomerId() + " is not exists");
-            return;
-        }
 
         Reservation[] newArray = new Reservation[reservations.length + 1];
         for (int i = 0; i < reservations.length; i++) {
@@ -419,6 +472,27 @@ public class Hotel {
         }
         newArray[reservations.length] = reservation;
         reservations = newArray;
+    }
+
+    private static boolean checkReservation(Reservation reservation) {
+        if (!DeuDate.isReservationInBetweenExpectedDates(reservation)) {
+            Utils.logWarning("This reservation dates are: " + reservation.getDateOfArrival() + " - " + reservation.getDateOfDeparture() + " but expected dates are: " + Constants.START_DATE + " - " + Constants.END_DATE);
+            return true;
+        }
+        Room room = getRoomById(reservation.getRoomId());
+        if (room == null) {
+            Utils.logWarning("Room #" + reservation.getRoomId() + " not found");
+            return true;
+        }
+        if (!isRoomAvailable(reservation, room)) {
+            Utils.logWarning("Room #" + (reservation).getRoomId() + " is not available");
+            return true;
+        }
+        if (!isCustomerExists(reservation)) {
+            Utils.logWarning("Customer #" + (reservation).getCustomerId() + " is not exists");
+            return true;
+        }
+        return false;
     }
 
     private static boolean isCustomerExists(Reservation reservation) {
@@ -464,10 +538,7 @@ public class Hotel {
         rooms = newArray;
     }
 
-    private static boolean isRoomAvailable(Reservation reservation) {
-        Room room = getRoomById(reservation.getRoomId());
-        if (room == null)
-            return false;
+    private static boolean isRoomAvailable(Reservation reservation, Room room) {
         Reservation existReservation = Reservation.getReservationByRoomId(reservations, room.getRoomId());
         return existReservation == null || room.isAvailableBetweenDates(existReservation, reservation.getDateOfArrival(), reservation.getDateOfDeparture());
     }
