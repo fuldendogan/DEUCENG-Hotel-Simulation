@@ -149,7 +149,8 @@ public class Hotel {
     public static void printMostReservedRoom() {
         int[] roomReservationDayCount = new int[rooms.length + 1];
         for (Reservation reservation : reservations) {
-            roomReservationDayCount[Integer.parseInt(reservation.getRoomId())] += reservation.getGapBetweenDates();
+            roomReservationDayCount[Integer.parseInt(reservation.getRoomId())] +=
+                    reservation.getGapBetweenDates();
         }
         int max = -1;
         int roomId = -1;
@@ -196,12 +197,11 @@ public class Hotel {
             salary += staff.getSalary();
         }
         salary *= 12;
-        int constantExpenses = 120000;
-        int profit = income - salary - constantExpenses;
+        int profit = income - salary - Constants.CONSTANT_EXPENSES;
 
         System.out.printf("\n\t   Salary = %,d", salary);
-        System.out.printf("\n\t   Constant expenses = " + "%,d", constantExpenses);
-        System.out.printf("\n\t   Profit = %,d  - %,d - %,d = %,d", income, salary, constantExpenses, profit);
+        System.out.printf("\n\t   Constant expenses = %,d", Constants.CONSTANT_EXPENSES);
+        System.out.printf("\n\t   Profit = %,d - %,d - %,d = %,d", income, salary, Constants.CONSTANT_EXPENSES, profit);
     }
 
     public static void printOccupancyRate() {
@@ -210,47 +210,14 @@ public class Hotel {
         for (int i = 1; i <= 12; i++) {
             System.out.printf("%d\t", i);
         }
-        // HashMap kullanilmamasi durumunda:
-//        int[] monthlyOccupancyRate = new int[12];
-//
-//        for (Reservation reservation : reservations) {
-//            int startMonth = reservation.getDateOfArrival().getMonth() - 1;
-//            int endMonth = reservation.getDateOfDeparture().getMonth() - 1;
-//            for (int i = startMonth; i <= endMonth; i++) {
-//                int dayCountOfTheMonth = DeuDate.getNumberOfDaysOfMonth(i + 1, reservation.getDateOfArrival().getYear());
-//
-//                int reservedDayCount;
-//                if (startMonth == endMonth)
-//                    reservedDayCount = reservation.getDateOfDeparture().getDay() - reservation.getDateOfArrival().getDay();
-//                else {
-//                    if (i == startMonth)
-//                        reservedDayCount = dayCountOfTheMonth - reservation.getDateOfArrival().getDay() + 1;
-//                    else if (i == endMonth)
-//                        reservedDayCount = reservation.getDateOfDeparture().getDay() - 1;
-//                    else
-//                        reservedDayCount = dayCountOfTheMonth;
-//                }
-//
-//                monthlyOccupancyRate[i] += reservedDayCount;
-//            }
-//        }
-//
-//        System.out.print("\n\t\t");
-//        for (int i = 0; i < 12; i++) {
-//            double dayCountOfTheMonth = monthlyOccupancyRate[i];
-//            double numberOfDaysOfMonth = DeuDate.getNumberOfDaysOfMonth(i + 1, reservations[0].getDateOfArrival().getYear());
-//            double percentage = dayCountOfTheMonth / (numberOfDaysOfMonth * rooms.length) * 100;
-//            System.out.printf("%d%%\t", Math.round(percentage * 100.0 / 100.0));//round to 2 decimal places
-//        }
-//        System.out.println();
 
-        Map<String, Integer> monthlyOccupancyRate = new HashMap<>();
+        int[] monthlyOccupancyRate = new int[12];
+
         for (Reservation reservation : reservations) {
-            int startMonth = reservation.getDateOfArrival().getMonth();
-            int endMonth = reservation.getDateOfDeparture().getMonth();
+            int startMonth = reservation.getDateOfArrival().getMonth() - 1;
+            int endMonth = reservation.getDateOfDeparture().getMonth() - 1;
             for (int i = startMonth; i <= endMonth; i++) {
-                String deuDate = i + ";" + reservation.getDateOfArrival().getYear();
-                int dayCountOfTheMonth = DeuDate.getNumberOfDaysOfMonth(i, reservation.getDateOfArrival().getYear());
+                int dayCountOfTheMonth = DeuDate.getNumberOfDaysOfMonth(i + 1, reservation.getDateOfArrival().getYear());
 
                 int reservedDayCount;
                 if (startMonth == endMonth)
@@ -264,21 +231,53 @@ public class Hotel {
                         reservedDayCount = dayCountOfTheMonth;
                 }
 
-                if (monthlyOccupancyRate.containsKey(deuDate)) {
-                    monthlyOccupancyRate.put(deuDate, monthlyOccupancyRate.get(deuDate) + reservedDayCount);
-                } else {
-                    monthlyOccupancyRate.put(deuDate, reservedDayCount);
-                }
+                monthlyOccupancyRate[i] += reservedDayCount;
             }
         }
+
         System.out.print("\n\t\t");
-        for (int i = 1; i <= 12; i++) {
-            double dayCountOfTheMonth = monthlyOccupancyRate.getOrDefault(i + ";" + reservations[0].getDateOfArrival().getYear(), 0);
-            double numberOfDaysOfMonth = DeuDate.getNumberOfDaysOfMonth(i, reservations[0].getDateOfArrival().getYear());
-            double percentage = dayCountOfTheMonth / (numberOfDaysOfMonth * rooms.length) * 100;
-            System.out.printf("%d%%\t", Math.round(percentage * 100.0 / 100.0));//round to 2 decimal places
+        for (int i = 0; i < 12; i++) {
+            double numberOfDaysOfMonth = DeuDate.getNumberOfDaysOfMonth(i + 1, 2024);
+            double percentage = monthlyOccupancyRate[i] / (numberOfDaysOfMonth * rooms.length) * 100;
+            System.out.printf("%d%%\t", Math.round(percentage));
         }
         System.out.println();
+
+//        Map<String, Integer> monthlyOccupancyRate = new HashMap<>();
+//        for (Reservation reservation : reservations) {
+//            int startMonth = reservation.getDateOfArrival().getMonth();
+//            int endMonth = reservation.getDateOfDeparture().getMonth();
+//            for (int i = startMonth; i <= endMonth; i++) {
+//                String deuDate = i + ";" + reservation.getDateOfArrival().getYear();
+//                int dayCountOfTheMonth = DeuDate.getNumberOfDaysOfMonth(i, reservation.getDateOfArrival().getYear());
+//
+//                int reservedDayCount;
+//                if (startMonth == endMonth)
+//                    reservedDayCount = reservation.getDateOfDeparture().getDay() - reservation.getDateOfArrival().getDay();
+//                else {
+//                    if (i == startMonth)
+//                        reservedDayCount = dayCountOfTheMonth - reservation.getDateOfArrival().getDay() + 1;
+//                    else if (i == endMonth)
+//                        reservedDayCount = reservation.getDateOfDeparture().getDay() - 1;
+//                    else
+//                        reservedDayCount = dayCountOfTheMonth;
+//                }
+//
+//                if (monthlyOccupancyRate.containsKey(deuDate)) {
+//                    monthlyOccupancyRate.put(deuDate, monthlyOccupancyRate.get(deuDate) + reservedDayCount);
+//                } else {
+//                    monthlyOccupancyRate.put(deuDate, reservedDayCount);
+//                }
+//            }
+//        }
+//        System.out.print("\n\t\t");
+//        for (int i = 1; i <= 12; i++) {
+//            double dayCountOfTheMonth = monthlyOccupancyRate.getOrDefault(i + ";" + reservations[0].getDateOfArrival().getYear(), 0);
+//            double numberOfDaysOfMonth = DeuDate.getNumberOfDaysOfMonth(i, reservations[0].getDateOfArrival().getYear());
+//            double percentage = dayCountOfTheMonth / (numberOfDaysOfMonth * rooms.length) * 100;
+//            System.out.printf("%d%%\t", Math.round(percentage * 100.0 / 100.0));//round to 2 decimal places
+//        }
+//        System.out.println();
     }
 
     public static void simulation(String date1S, String date2S) {
@@ -293,7 +292,7 @@ public class Hotel {
         if (date1.getMonth() == date2.getMonth()) {
             for (int dayNumber = date1.getDay(); dayNumber <= date2.getDay(); dayNumber++) {
                 daysString.append(String.format(space2, dayNumber));
-                double customerCount = 0;
+                int customerCount = 0;
                 for (Reservation reservation : reservations) {
                     if (reservation.containsThisDay(date1)) {
                         customerCount++;
@@ -319,7 +318,7 @@ public class Hotel {
             DeuDate[] dates = DeuDate.getDaysBetweenDates(date1, date2);
             for (DeuDate day : dates) {
                 daysString.append(String.format(space2, day.getDay()));
-                double customerCount = 0;
+                int customerCount = 0;
                 for (Reservation reservation : reservations) {
                     if (reservation.containsThisDay(day)) {
                         customerCount++;
@@ -449,21 +448,21 @@ public class Hotel {
             Utils.logWarning("Employee not found with id: #" + employeeId + ".");
             return;
         }
-            Staff[] newStaffs = new Staff[staffs.length - 1];
-            int newIndex = 0;
-            for (Staff staff : staffs) {
-                if (!staff.getStaffId().equals(employeeId)) {
-                    newStaffs[newIndex] = staff;
-                    newIndex++;
-                }
+        Staff[] newStaffs = new Staff[staffs.length - 1];
+        int newIndex = 0;
+        for (Staff staff : staffs) {
+            if (!staff.getStaffId().equals(employeeId)) {
+                newStaffs[newIndex] = staff;
+                newIndex++;
             }
-            staffs = newStaffs;
-            System.out.println("Employee with id #" + employeeId + " has been deleted.");
+        }
+        staffs = newStaffs;
+        System.out.println("Employee with id #" + employeeId + " has been deleted.");
     }
 
     private static void addToReservations(Reservation reservation) {
-        boolean thereIsError = checkReservation(reservation);
-        if (thereIsError)
+        boolean isThereError = checkReservation(reservation);
+        if (isThereError)
             return;
 
         Reservation[] newArray = new Reservation[reservations.length + 1];
